@@ -1,0 +1,107 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage{amsmath,amsthm,amsfonts,amssymb,amscd}
+\usepackage{fullpage}
+\usepackage{lastpage}
+\usepackage{enumerate}
+\usepackage{fancyhdr}
+\usepackage{mathrsfs}
+\usepackage[noend]{algpseudocode}
+\usepackage[margin=3cm]{geometry}
+\usepackage{paralist}
+\usepackage{sectsty}
+\usepackage{graphicx}
+\sectionfont{\fontsize{12.5}{15}\selectfont}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{0.05in}
+\setcounter{section}{-1}
+\title{HW Template}
+
+% Edit these as appropriate
+\newcommand\course{COMP5005}
+\newcommand\semester{Fall 2014}  % <-- current semester
+\newcommand\asgnname{2}         % <-- assignment name
+\newcommand\yourname{Yuanbo Guo}  % <-- your name
+\newcommand\login{7389051}          % <-- your CS login
+
+\pagestyle{fancyplain}
+\headheight 35pt
+\lhead{\yourname\ (\login)\\\course\ --- \semester}
+\chead{\textbf{\Large Homework \asgnname}}
+\rhead{\today}
+\headsep 10pt
+
+\begin{document}
+
+\section{Program Description}
+	\begin{compactitem}
+	\item Environment: Go 1.3.3 running on Mac OS X 10.10 beta 4\\
+	\item	Source code: https://github.com/gizak/learning-automa\\
+	\item	Dependencies: go.matrix: github.com/skelterjohn/go.matrix
+	\end{compactitem}
+\section{Ergodic Markov Chain}
+\subsection{Exact State Equilibrium}
+Calculate eigenvector of given Markov matrix:
+$P^{-1}M^{T}P=\Lambda$. There must be $\lambda=1$ in $\Lambda$, and then the corresponding column vector in $P$ is the state equilibrium. 
+\subsection{Stimulation}
+By matrix  multiplication:\\
+Simply iterate $M(n+1)=M(n)M(n)$ yields the result.\\
+
+By ensumble statistics, given a group size S and iteration steps N and a init probabilities vector P: (src at line 116)\\ 
+\begin{algorithmic}
+\Function{statErgodicAtStepN}{$S$,$N$,$P$}
+\State $statCnt \gets [0..0]$
+\For{1..S}
+	\State $state \gets randomIndexOfProbVector(P)$
+	\For{1..N}
+	\State $state \gets nextState(ErgodicMat,state)$
+	\EndFor
+	\State $statCnt[state]++$
+\EndFor
+\State $statCnt \gets unify(statCnt)$\\
+\Return $statCnt$
+\EndFunction
+\end{algorithmic}
+
+*If N is sufficient large, we consider the state is converged
+
+\section{Absorbing Markov Chain}
+\subsection{Calculate Absorbing Probabilities}
+\begin{algorithmic}
+\Function{absorbingStates}{}
+\State $TransitMat \gets extractTransitMat(AbsorbingMat)$
+\State $TrapMat \gets extractTrappingMat(AbsorbingMat)$
+\State $absorbingStates \gets [I-TransitMat]^{-1}TrappingMat$
+\State $absorbingStates \gets unifyMat(absorbingStates)$\\
+\Return $absorbingStates$
+\EndFunction
+\end{algorithmic}
+* The two dummy methods extractTransitMat and extractTrappingMat are hard coded for simplicity.\\
+* extractTransitMat removes absorbing states' rows and columns from original absorbing matrix.\\
+* extractTrappingMat returns a probabilities matrix from original whose rows are transit states and columns are absorbing states.\\
+* To be clear, if:
+$$AbsorbingMat=\left[\begin{array}{cccc}1 & 0 & 0 & 0 \\0.1 & 0.3 & 0.3 & 0.3 \\0.2 & 0.4 & 0.3 & 0.1 \\0 & 0 & 0 & 1\end{array}\right]$$
+Then: $TransitMat=\left[\begin{array}{cc}0.3 & 0.3 \\0.4 & 0.3\end{array}\right]$
+$TrapMat=\left[\begin{array}{cc}0.1 & 0.3 \\0.2 & 0.3\end{array}\right]$\\
+in which TransitMat is the "inner" part of original absorbing matrix in this case.
+\subsection{Stimulation}
+Similarly as ergodic chain stimulation(src code at line 220):
+\begin{algorithmic}
+\Function{statAbsorbing}{S}
+\State $statCnt \gets [0..0]$
+\For{1..S}
+	\For{$initState \gets transitStatesIndexArr, state \gets initState$}
+		\Repeat \\
+			\indent \indent \indent \indent $state \gets nextState(state, AbsorbingMat)$
+		\Until{isTrapped(stat,trapStatesIndexArr)}
+		$statCnt[initState][state]++$
+	\EndFor
+\EndFor \\
+\indent \Return $unifyMatWith(statCnt,S)$
+\EndFunction
+\end{algorithmic}
+\section{Results}
+\includegraphics[width=.8\linewidth]{case1}
+\newpage
+\includegraphics[width=.8\linewidth]{case2}\\
+\includegraphics[width=.8\linewidth]{case3}
+\end{document}

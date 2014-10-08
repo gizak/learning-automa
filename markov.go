@@ -78,7 +78,7 @@ func main() {
 		}
 	}
 
-	case3()
+	case1()
 	if 1 == 0 {
 		case1()
 		case2()
@@ -199,7 +199,7 @@ func absorbingStates() *matrix.DenseMatrix {
 	res, err := inv.TimesDense(TrapMat)
 	chk(err)
 
-	return unifyMat(res)
+	return res //unifyMat(res)
 }
 
 func unifyMat(M *matrix.DenseMatrix) *matrix.DenseMatrix {
