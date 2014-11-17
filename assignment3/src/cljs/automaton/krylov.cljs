@@ -19,9 +19,21 @@
 ;; Inherit from tsetlin
 (def new-state-after-reward tsetlin/new-state-after-reward)
 (def action tsetlin/action)
-(def exact-stationary-prob tsetlin/exact-stationary-prob)
-(def exact-stationary-accuracy tsetlin/exact-stationary-accuracy)
-(def search-N-given-accuracy tsetlin/search-N-given-accuracy)
+
+(defn exact-stationary-prob
+  "Bridge to Tsetlin"
+  [c1 c2 N]
+  (tsetlin/exact-stationary-prob (/ c1 2) (/ c2 2) N))
+
+(defn exact-stationary-accuracy
+  "Bridge to Tsetlin"
+  [c1 c2 N]
+  (tsetlin/exact-stationary-accuracy (/ c1 2) (/ c2 2) N))
+
+(defn search-N-given-accuracy
+  "Process same way as Tsetlin but cut prob in half"
+  [c1 c2 acc]
+  (tsetlin/search-N-given-accuracy (/ c1 2) (/ c2 2) acc))
 
 
 ;; Inherit from tsetlin
