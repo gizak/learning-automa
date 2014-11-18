@@ -10,10 +10,11 @@
   [prob-vec k a penalty?]
   (if penalty?
     prob-vec ;; ignore
-    (let [b (int (* (dec a) (dec a)))]
+    (let [b (int (* (dec a) (dec a)))
+          nb (* k (get prob-vec b))]
       (-> prob-vec
           (update-in [b] #(* k %))
-          (update-in [a] #(- 1 %))))))
+          (update-in [a] #(- 1 nb))))))
 
 
 ;;
@@ -32,7 +33,7 @@
     1))
 
 
-(def valve 0.00001)
+(def valve 0.0001)
 
 ;;
 (defn speedup-converge
